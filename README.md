@@ -30,6 +30,7 @@ vi cloud.tf     # make sure you update your AWS profile info
 Here is an (edited) example of my `$HOME/.aws/credentials` file that needs to have the same names found in `global/providers/cloud.tf`
 
 <h5 a><strong><code>vi $HOME/.aws/credentials</code></strong></h5>
+
 ```
 [Domain]
 #Associated with email email1@gmail.com
@@ -47,8 +48,10 @@ aws_secret_access_key = gzXKcDvfakeagainDL5+UMYN9bSE87dFdE
 region=us-east-1
 output = json
  ```
+
 Normally, you will need a `cloud.tf` file with the provider block in each folder containing any of your infrastructure so that Terraform knows about your provider (e.g. AWS, Azure, GCP). Hence one ends up having the same file copied over and over in numerous folders. However, a convenient way to deal with this issue if to use symbolic links when initializing Terraform. In oder to start every piece of infrastructure in this example, you will have to execute a bash file called `start.sh`. If you open the file you will find:
 <h5 a><strong><code>vi global/tf-state/start.sh</code></strong></h5>
+
 ```
 #!/bin/bash
 ln -s    ../../global/providers/cloud.tf ./cloud.tf
@@ -64,15 +67,18 @@ As you can see, this file stablishes a symbolic link between the `cloud.tf` file
 Now I will start Terraform's backend. I will update the names in the backend to avoid conflict:
 
 <h5 a><strong><code>cd global/tf-state/</code></strong></h5>
+
 ```
 cd global/tf-state/
 vi backend.tf     # make sure you update the bucket and dynamodb names
 vi local.tf           # make sure you update the bucket name
 bash start.sh    # at this point the backend is setup
 ```
+
 If you open the `start.sh` file you will see how a symbolic link was established between the `global/providers/cloud.tf` file and the current folder where infrastructure is being deployed. Also, notice that a profile tag was included in every Terraform resource. For example, below I show the file `global/tf-state/bucket.tf` responsible for creating an S3 bucket for the backend:
 
 <h5 a><strong><code>cd global/tf-state/bucket.tf</code></strong></h5>
+
 ```
 resource "aws_s3_bucket" "terraform_state" {
   provider        =  aws.Infrastructure
@@ -82,38 +88,46 @@ resource "aws_s3_bucket" "terraform_state" {
   }
 }
 ```
+
 As a quick note to set up Terraform's backend, you need to create an S3 bucket to store the state file and a dynamoDB to save the lock&mdash; so that infrastucture can b saved in source control and for example numerous users can work on the same folder. The `provider=aws.Infrastructure` tags mean that Terraform should use Account 2 to deploy the infrastructure. At the same time, I use the `prevent_destroy = true` tag. Hence, If you try destroying the resource terraform will give an error.  At this point, we have the backend all setup. 
  
 ## Using a Domain profile to deploy a hosted Zone <a name="one"></a>
 Before deploying the hosted zone, we will define all relevant variables:
 
 <h5 a><strong><code>cd global/variables</code></strong></h5>
+
 ```
 bash start.sh    # at this point all variables are defined
 
 ```
+
 Now we are ready to deploy the hosted zone in AWS account 1 by simply entering the `vpcs/zone` folder and executing the bash `start.sh` file.
 
 <h5 a><strong><code>cd vpcs/zone</code></strong></h5>
+
 ```
 cd vpcs/zone
 bash start.sh    # at this point all variables are defined
 
 ```
+
 If you access your AWS account 1 you will see the newly created hosted zone in Route53/Hosted Zones.
 
 ## Using another profile to deploy a ACM Certificates <a name="two"></a>
 Now we can deploy the certificate in <mark>AWS account 2</mark>, again simply by entering the `vpcs/certs` folder and executing the bash `start.sh` file
 
 <h5 a><strong><code>cd vpcs/certs</code></strong></h5>
+
 ```
 cd vpcs/certs
 bash start.sh    # at this point all variables are defined
 
 ```
+
 If you now access your <mark>AWS account 2</mark> you will see the newly created certificate in Certificate Manager/List certificates. By inspecting Terraform's files you can see how the `provider` tag was used for example in the `acm_certificate.tf` file.
 
 <h5 a><strong><code>vi vpcs/certs/acm_certificate.tf</code></strong></h5>
+
 ```
 resource "aws_acm_certificate" "domain" {
   provider                     =  aws.Infrastructure
@@ -125,9 +139,11 @@ resource "aws_acm_certificate" "domain" {
   }
 }
 ```
+
 As you can see this resource will be deployed in <mark>AWS account 2</mark>, however by inspecting the `route53_record.tf` file you can see that the set of CNAME records needed for the certificate validation is indeed created in <mark>AWS account 1</mark>, the account that hosts the domain. As a note, CNAME records are just DNS record that maps an alias to the canonical domain name, allowing multiple names to point to the same location.
 
 <h5 a><strong><code>vi vpcs/certs/route53_record.tf</code></strong></h5>
+
 ```
 resource "aws_acm_certificate" "domain" {
   provider                     =  aws.Infrastructure

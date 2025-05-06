@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5df2590c20626653835164556da77d4faa7426fd
 ## Table of contents
 1. [Introduction](#introduction)
 2. [Goal: use multiple profiles when deploying infrastructure](#goal)
@@ -53,7 +57,10 @@ output = json
  ```
 
 that needs to have the same names found in `global/providers/cloud.tf`
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5df2590c20626653835164556da77d4faa7426fd
 <h5 a><strong><code>vi global/providers/cloud.tf</code></strong></h5>
 
 ```
@@ -93,17 +100,26 @@ As you can see, this file stablishes a symbolic link between the `cloud.tf` file
 Now I will start Terraform's backend which is <mark>defined with a single variable</mark> in `backendname.tf`. I will update the backend name to avoid conflict:
 
 <h5 a><strong><code>cd global/tf-state/</code></strong></h5>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5df2590c20626653835164556da77d4faa7426fd
 ```
 cd global/tf-state/
 vi backendname.tf    # make sure you update the bucket and dynamodb names into a unique name
 bash start.sh    # at this point the backend is setup
 ```
+<<<<<<< HEAD
 
 If you open the `start.sh` file you will see how a symbolic link was established between the `global/providers/cloud.tf` file and the current folder where infrastructure is being deployed. Also, notice that a profile tag was included in every Terraform resource. For example, below I show the file `global/tf-state/bucket.tf` responsible for creating an S3 bucket for the backend:
 
 <h5 a><strong><code>cd global/tf-state/bucket.tf</code></strong></h5>
 
+=======
+If you open the `start.sh` file you will see how a symbolic link was established between the `global/providers/cloud.tf` file and the current folder where infrastructure is being deployed. Also, notice that a profile tag was included in every Terraform resource. For example, below I show the file `global/tf-state/bucket.tf` responsible for creating an S3 bucket for the backend:
+
+<h5 a><strong><code>cd global/tf-state/bucket.tf</code></strong></h5>
+>>>>>>> 5df2590c20626653835164556da77d4faa7426fd
 ```
 resource "aws_s3_bucket" "terraform_state" {
   provider        =  aws.Infrastructure
@@ -113,7 +129,10 @@ resource "aws_s3_bucket" "terraform_state" {
   }
 }
 ```
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5df2590c20626653835164556da77d4faa7426fd
 I achieved a backend defined by a single variable by means of the following trick. I used a local resource that creates a file `backend.hcl` with the bucket and DB name defined in a local variable called `aws_s3_bucket_bucket`. The local resource file is shown below:
 
 <h5 a><strong><code>cd global/tf-state/create-backend-file.tf</code></strong></h5>
@@ -131,7 +150,10 @@ encrypt        = "true"
 ```
 
 At the same time, the backend unique name is saved as a variable in the `variables` folder so that it can be carried out throughout the infrastructure without having to repeate the name. This was achieved by means a local resource that saves the backend name as variable in the variable's folder:
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5df2590c20626653835164556da77d4faa7426fd
 <h5 a><strong><code>cd global/tf-state/exportvariable-to-global-variables.tf</code></strong></h5>
 
 ```
@@ -144,7 +166,10 @@ variable "backendname" {
     filename = "../../global/variables/backendname-var.tf"
 }
 ```
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5df2590c20626653835164556da77d4faa7426fd
 You can learm more about variables in [another post](https://www.headinthecloud.xyz/blog/projectwide-variables/).
 
 As a quick note to set up Terraform's backend, you need to create an S3 bucket to store the state file and a dynamoDB to save the lock&mdash; so that infrastucture can be saved in source control and for example numerous users can work on the same folder. The `provider=aws.Infrastructure` tags mean that Terraform should use Account 2 to deploy the infrastructure. At the same time, I use the `prevent_destroy = true` tag. Hence, If you try destroying the resource terraform will give an error.  At this point, we have the backend all setup. 
@@ -223,8 +248,11 @@ Here I have shown how to use the <mark>provider</mark> tag to use different AWS 
  
  
  
+<<<<<<< HEAD
 
 
  
  
  
+=======
+>>>>>>> 5df2590c20626653835164556da77d4faa7426fd

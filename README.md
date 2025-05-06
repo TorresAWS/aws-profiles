@@ -1,4 +1,3 @@
-
 ## Table of contents
 1. [Introduction](#introduction)
 2. [Goal: use multiple profiles when deploying infrastructure](#goal)
@@ -54,6 +53,7 @@ output = json
  ```
 
 that needs to have the same names found in `global/providers/cloud.tf`
+
 <h5 a><strong><code>vi global/providers/cloud.tf</code></strong></h5>
 
 ```
@@ -79,10 +79,7 @@ Normally, you will need a `cloud.tf` file with the provider block in each folder
 
 ```
 #!/bin/bash
-<<<<<<< HEAD
-=======
 rm cloud.tf
->>>>>>> 5df2590 (add backend with a single variable)
 ln -s    ../../global/providers/cloud.tf ./cloud.tf
 terraform init
 terraform plan
@@ -96,19 +93,7 @@ As you can see, this file stablishes a symbolic link between the `cloud.tf` file
 Now I will start Terraform's backend which is <mark>defined with a single variable</mark> in `backendname.tf`. I will update the backend name to avoid conflict:
 
 <h5 a><strong><code>cd global/tf-state/</code></strong></h5>
-<<<<<<< HEAD
 
-```
-cd global/tf-state/
-vi backendname.tf    # make sure you update the bucket and dynamodb names
-bash start.sh    # at this point the backend is setup
-```
-
-If you open the `start.sh` file you will see how a symbolic link was established between the `global/providers/cloud.tf` file and the current folder where infrastructure is being deployed. Also, notice that a profile tag was included in every Terraform resource. For example, below I show the file `global/tf-state/bucket.tf` responsible for creating an S3 bucket for the backend:
-
-<h5 a><strong><code>cd global/tf-state/bucket.tf</code></strong></h5>
-
-=======
 ```
 cd global/tf-state/
 vi backendname.tf    # make sure you update the bucket and dynamodb names into a unique name
@@ -117,7 +102,7 @@ bash start.sh    # at this point the backend is setup
 If you open the `start.sh` file you will see how a symbolic link was established between the `global/providers/cloud.tf` file and the current folder where infrastructure is being deployed. Also, notice that a profile tag was included in every Terraform resource. For example, below I show the file `global/tf-state/bucket.tf` responsible for creating an S3 bucket for the backend:
 
 <h5 a><strong><code>cd global/tf-state/bucket.tf</code></strong></h5>
->>>>>>> 5df2590 (add backend with a single variable)
+
 ```
 resource "aws_s3_bucket" "terraform_state" {
   provider        =  aws.Infrastructure
@@ -127,10 +112,6 @@ resource "aws_s3_bucket" "terraform_state" {
   }
 }
 ```
-<<<<<<< HEAD
-
-As a quick note to set up Terraform's backend, you need to create an S3 bucket to store the state file and a dynamoDB to save the lock&mdash; so that infrastucture can b saved in source control and for example numerous users can work on the same folder. The `provider=aws.Infrastructure` tags mean that Terraform should use Account 2 to deploy the infrastructure. At the same time, I use the `prevent_destroy = true` tag. Hence, If you try destroying the resource terraform will give an error.  At this point, we have the backend all setup. 
-=======
 I achieved a backend defined by a single variable by means of the following trick. I used a local resource that creates a file `backend.hcl` with the bucket and DB name defined in a local variable called `aws_s3_bucket_bucket`. The local resource file is shown below:
 
 <h5 a><strong><code>cd global/tf-state/create-backend-file.tf</code></strong></h5>
@@ -165,7 +146,6 @@ variable "backendname" {
 You can learm more about variables in [another post](https://www.headinthecloud.xyz/blog/projectwide-variables/).
 
 As a quick note to set up Terraform's backend, you need to create an S3 bucket to store the state file and a dynamoDB to save the lock&mdash; so that infrastucture can be saved in source control and for example numerous users can work on the same folder. The `provider=aws.Infrastructure` tags mean that Terraform should use Account 2 to deploy the infrastructure. At the same time, I use the `prevent_destroy = true` tag. Hence, If you try destroying the resource terraform will give an error.  At this point, we have the backend all setup. 
->>>>>>> 5df2590 (add backend with a single variable)
 To be able to use a single variable to define our backend, I used a local-file resource that creates the backend file `backend.hcl`. This way both the DB and the bucket are named according to `backendname.tf` and hence this one variable defines the backend.
  
 ## Using a Domain profile to deploy a hosted Zone <a name="one"></a>
@@ -236,6 +216,11 @@ resource "aws_acm_certificate" "domain" {
 <div class="alert alert-block alert-info">
 Here I have shown how to use the <mark>provider</mark> tag to use different AWS accounts when deploying infrastructure. I applied this method to deploy a hosted zone and an SSL/TLS X.509 certificate. 
 </div>
+
+
+ 
+ 
+ 
 
 
  

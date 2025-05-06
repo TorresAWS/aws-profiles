@@ -99,6 +99,7 @@ cd global/tf-state/
 vi backendname.tf    # make sure you update the bucket and dynamodb names into a unique name
 bash start.sh    # at this point the backend is setup
 ```
+
 If you open the `start.sh` file you will see how a symbolic link was established between the `global/providers/cloud.tf` file and the current folder where infrastructure is being deployed. Also, notice that a profile tag was included in every Terraform resource. For example, below I show the file `global/tf-state/bucket.tf` responsible for creating an S3 bucket for the backend:
 
 <h5 a><strong><code>cd global/tf-state/bucket.tf</code></strong></h5>
@@ -112,6 +113,7 @@ resource "aws_s3_bucket" "terraform_state" {
   }
 }
 ```
+
 I achieved a backend defined by a single variable by means of the following trick. I used a local resource that creates a file `backend.hcl` with the bucket and DB name defined in a local variable called `aws_s3_bucket_bucket`. The local resource file is shown below:
 
 <h5 a><strong><code>cd global/tf-state/create-backend-file.tf</code></strong></h5>
